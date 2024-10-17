@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Enhancer</title>
+    
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(black,rgb(13, 96, 64));
+        margin: 0;
+      }
+      .container {
+        text-align: center;
+        background: #4b6cb7;  /* fallback for old browsers */
+        background: -webkit-linear-gradient(to right, #182848, #4b6cb7);  /* Chrome 10-25, Safari 5.1-6 */
+         background: linear-gradient(to right, #182848, #4b6cb7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        margin-bottom: 20px;
+      }
+      input[type="file"] {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 100%;
+        max-width: 300px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Image Enhancement Tool</h1>
+      <form
+        onsubmit="enhance_image(event)"
+        id="uploadForm"
+        enctype="multipart/form-data"
+      >
+        <img id="preview_img" src="" alt="" />
+        <input
+          type="file"
+          id="imageInput"
+         onchange="enhance()"
+          name="image"
+          accept="image/*"
+          required
+        />
+        <br />
+        <button type="submit"  >
+          <i class="fas fa-upload"   ></i> Enhance Image
+        </button>
+        <input type="hidden" name="bucket" value=" ai-direct-upload" />
+        <input type="hidden" name="content_type" value="image/jpeg" />
+      </form>
+      <div id="result" style="margin-top: 20px"></div>
+    </div>
+
+    <script>
+    function enhance() {
+    let files = document.getElementById("imageInput").files;
+    console.log(files[0]);
+    let image_tag = document.getElementById("preview_img");
+    console.log(image_tag);
+
+    reader = new FileReader
+
+    reader.onload=(e)=>{
+    
+        
+        image_tag.src = e.target.result
+        image_tag.style.display = "block"
+    }
+    reader.readAsDataURL(files[0]);
+  } 
+
+async function  enhance_image(event){
+    event.preventDefault()
+     console.log("start")
+    let form =  document.getElementById('uploadForm')
+    console.log(form)
+   
+    let formdata = new FormData(form)
+
+    console.log(formdata)
+
+
+     let response = await fetch("/",{
+        method:"POST",
+       
+        body:formdata
+     })
+     data = await response.json()
+     console.log(data.success)
+     console.log(data.updated_img)
+
+     if(data.success === true)
+     {
+    let image_tag = document.getElementById("preview_img");
+       image_tag.src = data.updated_img
+    
+
+
+     }
+
+
+}
+    </script>
+  </body>
+</html>
