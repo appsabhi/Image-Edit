@@ -58,7 +58,7 @@
     <div class="container">
       <h1>Image Enhancement Tool</h1>
       <form
-        onsubmit="enhance_image(event)"
+        
         id="uploadForm"
         enctype="multipart/form-data"
       >
@@ -72,8 +72,14 @@
           required
         />
         <br />
-        <button type="submit"  >
+        <button type="submit"  onclick="enhance_image(event)">
           <i class="fas fa-upload"   ></i> Enhance Image
+          
+        </button>
+        <button type="submit"  onclick="remove_bg(event)" >
+
+          <i class="fas fa-upload"   ></i>Remove Backround
+          
         </button>
         <input type="hidden" name="bucket" value=" ai-direct-upload" />
         <input type="hidden" name="content_type" value="image/jpeg" />
@@ -110,7 +116,7 @@ async function  enhance_image(event){
     console.log(formdata)
 
 
-     let response = await fetch("/",{
+     let response = await fetch("/enhance",{
         method:"POST",
        
         body:formdata
@@ -121,15 +127,46 @@ async function  enhance_image(event){
 
      if(data.success === true)
      {
+      
     let image_tag = document.getElementById("preview_img");
        image_tag.src = data.updated_img
-    
-
-
+  
      }
+}
 
+
+
+async function remove_bg(event){
+
+
+event.preventDefault()
+console.log("start bg")
+let form =  document.getElementById('uploadForm')
+let files = document.getElementById("imageInput").files;
+let file = files[0]
+if(!file)
+{
+  alert("upload")
+}
+console.log(file)
+let form_data = new FormData()
+form_data.append('image',file)
+console.log("form",form_data)
+
+let response = await fetch("/remove_bg",{
+    method:"POST",
+    body:form_data
+
+  })
+let data = await response.json()
+console.log(data.data)
+//
+
+// let imagetag = document.getElementById('preview_img')
+// imagetag.src = data.url
+// imagetag.style.display="block"
 
 }
-    </script>
-  </body>
+</script>
+</body>
 </html>

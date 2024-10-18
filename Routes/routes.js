@@ -1,10 +1,12 @@
 const express = require("express")
 const Router = express.Router()
-const controller = require("../Controllers/enhancement_controller")
+const enhance_controller = require("../Controllers/enhancement_controller")
+const remove_bg_controller = require("../Controllers/background_remover_controller")
 const upload = require("../util/multer")
 
 
-Router.get("/",controller.get_home)
-Router.post("/",upload.single('image'),controller.upload_and_enhance_image)
+Router.get("/",enhance_controller.get_home)
+Router.post("/enhance",upload.single('image'),enhance_controller.upload_and_enhance_image)
+Router.post("/remove_bg",upload.single('image'),remove_bg_controller.remove_bg)
 
 module.exports=Router
