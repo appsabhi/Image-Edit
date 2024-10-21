@@ -28,7 +28,7 @@ module.exports = {
 
       //   first Request //
       console.log(req.body);
-      let { bucket, content_type } = req.body;
+    
 
       let formdata = new FormData();
 
