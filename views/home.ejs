@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Image Enhancer</title>
-    
+
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
@@ -16,15 +16,22 @@
         justify-content: center;
         align-items: center;
         height: 100vh;
-        background: linear-gradient(black,rgb(13, 96, 64));
+        background: linear-gradient(black, rgb(13, 96, 64));
         margin: 0;
       }
       .container {
         text-align: center;
-        background: #4b6cb7;  /* fallback for old browsers */
-        background: -webkit-linear-gradient(to right, #182848, #4b6cb7);  /* Chrome 10-25, Safari 5.1-6 */
-         background: linear-gradient(to right, #182848, #4b6cb7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-
+        background: #4b6cb7; /* fallback for old browsers */
+        background: -webkit-linear-gradient(
+          to right,
+          #182848,
+          #4b6cb7
+        ); /* Chrome 10-25, Safari 5.1-6 */
+        background: linear-gradient(
+          to right,
+          #182848,
+          #4b6cb7
+        ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -52,34 +59,38 @@
       button:hover {
         background-color: #0056b3;
       }
+
+      #preview_img {
+        display: none;
+        width: 100%;
+        height: 500px;
+        border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+        border-radius: 5px; /* Optional: Add rounded corners */
+        margin-top: 10px;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Image Enhancement Tool</h1>
-      <form
-        
-        id="uploadForm"
-        enctype="multipart/form-data"
-      >
+      <form id="uploadForm" enctype="multipart/form-data">
         <img id="preview_img" src="" alt="" />
         <input
           type="file"
           id="imageInput"
-         onchange="enhance()"
+          onchange="enhance()"
           name="image"
           accept="image/*"
           required
         />
         <br />
-        <button type="submit"  onclick="enhance_image(event)">
-          <i class="fas fa-upload"   ></i> Enhance Image
-          
-        </button>
-        <button type="submit"  onclick="remove_bg(event)" >
 
-          <i class="fas fa-upload"   ></i>Remove Backround
-          
+        <button type="submit" onclick="enhance_image(event)">
+          <i class="fas fa-upload"></i> Enhance Image
+        </button>
+
+        <button type="submit" onclick="remove_bg(event)">
+          <i class="fas fa-upload"></i>Remove Backround
         </button>
         <input type="hidden" name="bucket" value=" ai-direct-upload" />
         <input type="hidden" name="content_type" value="image/jpeg" />
@@ -88,85 +99,88 @@
     </div>
 
     <script>
-    function enhance() {
-    let files = document.getElementById("imageInput").files;
-    console.log(files[0]);
-    let image_tag = document.getElementById("preview_img");
-    console.log(image_tag);
+      let currentImage = null; // Store the latest version of the image
 
-    reader = new FileReader
+      function enhance() {
+        let files = document.getElementById("imageInput").files;
+        let imageTag = document.getElementById("preview_img");
 
-    reader.onload=(e)=>{
-    
-        
-        image_tag.src = e.target.result
-        image_tag.style.display = "block"
-    }
-    reader.readAsDataURL(files[0]);
-  } 
+        if (files.length === 0) {
+          alert("Please select an image.");
+          return;
+        }
 
-async function  enhance_image(event){
-    event.preventDefault()
-     console.log("start")
-    let form =  document.getElementById('uploadForm')
-    console.log(form)
-   
-    let formdata = new FormData(form)
+        const reader = new FileReader();
 
-    console.log(formdata)
+        reader.onload = (e) => {
+          currentImage = new Image();
+          currentImage.src = e.target.result;
 
+          currentImage.onload = () => {
+            imageTag.src = currentImage.src;
+            imageTag.style.display = "block";
+          };
+        };
 
-     let response = await fetch("/enhance",{
-        method:"POST",
-       
-        body:formdata
-     })
-     data = await response.json()
-     console.log(data.success)
-     console.log(data.updated_img)
+        reader.readAsDataURL(files[0]);
+      }
 
-     if(data.success === true)
-     {
-      
-    let image_tag = document.getElementById("preview_img");
-       image_tag.src = data.updated_img
-  
-     }
-}
+      async function enhance_image(event) {
+        event.preventDefault();
 
+        let form = document.getElementById("uploadForm");
+        let image_tag = document.getElementById("preview_img");
+        let files = document.getElementById("imageInput").files;
+        let file = files[0];
 
+        if (files.length === 0) {
+          alert("Please select an image.");
+          return;
+        }
 
-async function remove_bg(event){
+        let formdata = new FormData();
+        formdata.append("image", file);
 
+        let response = await fetch("/enhance", {
+          method: "POST",
+          body: formdata,
+        });
 
-event.preventDefault()
-console.log("start bg")
-let form =  document.getElementById('uploadForm')
-let files = document.getElementById("imageInput").files;
-let file = files[0]
-if(!file)
-{
-  alert("upload")
-}
-console.log(file)
-let form_data = new FormData()
-form_data.append('image',file)
-console.log("form",form_data)
+        data = await response.json();
 
-let response = await fetch("/remove_bg",{
-    method:"POST",
-    body:form_data
+        if (data.success === true) {
+          image_tag.src = data.updated_img;
+        }
+      }
 
-  })
-let data = await response.json()
-console.log(data.data)
-//
+      async function remove_bg(event) {
+        event.preventDefault();
 
-// let imagetag = document.getElementById('preview_img')
-// imagetag.src = data.url
-// imagetag.style.display="block"
+        let form = document.getElementById("uploadForm");
+        let files = document.getElementById("imageInput").files;
+        let imagetag = document.getElementById("preview_img");
 
-}
-</script>
-</body>
+        let file = files[0];
+
+        if (files.length === 0) {
+          alert("Please select an image.");
+          return;
+        }
+        let form_data = new FormData();
+        form_data.append("image", file);
+
+        let response = await fetch("/remove_bg", {
+          method: "POST",
+          body: form_data,
+        });
+
+        console.log(response);
+        let data = await response.json();
+
+        imagetag.src = data.image_url;
+
+        //
+      }
+    </script>
+  </body>
 </html>

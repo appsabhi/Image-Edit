@@ -1,37 +1,53 @@
+require("dotenv").config();
+const { PixelbinClient, PixelbinConfig } = require("@pixelbin/admin");
+const Pixelbin = require("@pixelbin/admin");
 
+const config = new PixelbinConfig({
+  domain: "https://api.pixelbin.io",
+  apiSecret: process.env.BGREMOVE_API_KEY, // Use the correct API token
+});
+
+const pixelbin = new PixelbinClient(config);
 
 module.exports = {
   remove_bg: async (req, res) => {
     try {
-      console.log(req.file);
+     
+      const filename = `${Date.now()}-${req.file.originalname}`
 
-      const imagefile = new Blob([req.file.buffer], {
-        type: req.file.mimetype,
+      const result = await pixelbin.uploader.upload({
+        file: req.file.buffer,
+        name: filename,
+        path: "/My Library/images",
+        format: "jpeg",
+        tags: [],
+        metadata: {},
+        overwrite: false,
+        filenameOverride: false,
+        access: "public-read",
       });
-      console.log("image", imagefile);
-      let form = new FormData();
-      form.append("image_file",imagefile,req.file.originalname);
-      // console.log(form);
 
-      let bg_response = await fetch(
-        "https://clipdrop-api.co/remove-background/v1",
-        {
-          method: "POST",
-          headers: {
-            "x-api-key":
-              "c5383ef3b3bed4022338890cfbda128cf480e3888e7d795f3e83bf57caea73d2b55b3dc299bdf71845d49755dbca47c8",
-          },
-          body: form,
-        }
-      );
-  console.log(bg_response)
-      if (bg_response.statusText === 'OK') {
-        let data = await bg_response.arrayBuffer();
-      
-        res.json({ data });
-      }
+
+      const obj = {
+        cloudName: "cold-truth-fd28d6",
+        zone: "NRYeUN",
+        version: "v2",
+        transformations: [{ name: "bg", plugin: "erase" }],
+        filePath: `/${result.path}/${result.name}`,
+        baseUrl: "https://cdn.pixelbin.io",
+      };
+
+      const removed_url = Pixelbin.url.objToUrl(obj);
+
+      console.log(removed_url);
+     if(removed_url){
+      return res.json({success:true,image_url:removed_url});
+ 
+     }
     } catch (error) {
-      console.log(error.message);
+   
+      console.log("Error:", error.message);
+    
     }
   },
 };

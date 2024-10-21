@@ -32,8 +32,8 @@ module.exports = {
 
       let formdata = new FormData();
 
-      formdata.append("bucket", bucket);
-      formdata.append("content_type", content_type);
+      formdata.append("bucket",  "ai-direct-upload");
+      formdata.append("content_type", "image/jpeg" );
 
       formdata.append("CSRFtoken", CSRFtoken);
 
@@ -117,6 +117,7 @@ module.exports = {
                   "64381e528e7c7a9b9f69f4499d274904.9787bfa35a80724553b7be2700aaf34829b601f4b6a284edc749973b002aabbe",
                 cookie: csrf_token,
               },
+
               body: urlencoded,
               method: "POST",
             }
