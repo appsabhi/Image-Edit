@@ -27,7 +27,7 @@ module.exports = {
       CSRFtoken = generatecsrftoken();
 
       //   first Request //
-      console.log(req.body);
+
     
 
       let formdata = new FormData();
@@ -87,7 +87,7 @@ module.exports = {
         const location =
           xmldata.getElementsByTagName("Location")[0].textContent;
 
-        console.log("Location:", location);
+    
 
         // second request //
 
@@ -125,9 +125,7 @@ module.exports = {
 
           let { data } = await final_response.json();
 
-          console.log(data.image);
-          console.log(data.original_img);
-          console.log(data.success);
+      
 
           // Third Response //
 
@@ -141,7 +139,7 @@ module.exports = {
       }
     } catch (error) {
       console.log(error.message);
-      return res.redirect("/");
+   
     }
   },
 };

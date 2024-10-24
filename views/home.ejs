@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Image Enhancer</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
@@ -48,6 +48,7 @@
         border-radius: 5px;
         width: 100%;
         max-width: 300px;
+     
       }
       button {
         padding: 10px 20px;
@@ -96,12 +97,19 @@
     </style>
   </head>
   <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.js"></script>
     <span class="loader" id="loder"></span>
 
     <div class="container">
+    <div id="slider" class="noUi-target noUi-ltr noUi-horizontal noUi-txt-dir-ltr bfn-slider"></div>
+
       <h1>Image Enhancement Tool</h1>
       <form id="uploadForm" enctype="multipart/form-data">
-        <img id="preview_img" src="" alt="" />
+        <a id="download"  href=""  style="position: absolute;z-index:20;left:36px;bottom: 150px;display:none;"><span class="fas fa-upload"></span></a>
+
+        <img id="preview_img" src="" alt=""   style="position: relative;z-index: 10;"/>
+
+
         <input
           type="file"
           id="imageInput"
@@ -122,6 +130,7 @@
         <button type="submit" onclick="image_filtering(event)">
           <i class="fas fa-upload"></i>Filter
         </button>
+
         <input type="hidden" name="bucket" value=" ai-direct-upload" />
         <input type="hidden" name="content_type" value="image/jpeg" />
       </form>
@@ -129,6 +138,35 @@
     </div>
 
     <script>
+
+
+        const slider = document.getElementById('slider');
+
+        // Create the slider
+        noUiSlider.create(slider, {
+            start: [0],
+            range: {
+                'min': [0],
+                'max': [10] // Adjust as necessary
+            },
+            step: 1
+        });
+
+        // Update the adjustment value
+        slider.noUiSlider.on('update', function (values, handle) {
+            let  adjustmentValue = values[handle];
+            console.log('Current Adjustment Value:', adjustmentValue);
+         let response  =   fetch('https://upload.befunky.com/artsy/',{
+                          method:'PUT',
+                          
+         })
+   
+        });
+    
+
+
+
+
       let currentImage = null; // Store the latest version of the image
 
       function enhance() {
@@ -164,6 +202,8 @@
         let form = document.getElementById("uploadForm");
         let image_tag = document.getElementById("preview_img");
         let files = document.getElementById("imageInput").files;
+          let link = document.getElementById('download')
+
         let file = files[0];
 
         if (files.length === 0) {
@@ -186,8 +226,19 @@
         if (data.success === true) {
           let loader = document.getElementById("loder");
           loader.style.display = "none";
-
           image_tag.src = data.updated_img;
+          // link.style.display='inline'
+          // link.href=data.updated_img
+          // console.log(link.href)
+          // link.download = "processed_img.jpg"
+        downloadImage( data.updated_img);
+
+          
+        
+           
+      
+      
+
         }
       }
 
@@ -235,9 +286,11 @@
                 errorData.message || "Failed to process image. Try again."
               );
             }
-
+            
             let data = await response.json();
             imagetag.src = data.image_url; // Display processed image
+            downloadImage( data.image_url)
+
           } catch (error) {
             alert(error.message); // Display user-friendly error message
           } finally {
@@ -271,9 +324,8 @@
           let form_data = new FormData();
           form_data.append("image", file);
 
-
           loader.style.display = "block";
-                 
+
           console.log(form_data);
           let response = await fetch("/image_filter", {
             method: "POST",
@@ -281,15 +333,45 @@
           });
           let data = await response.json();
           if (data.success === true) {
-
             imagetag.src = data.filtered_image;
             loader.style.display = "none";
-
+            downloadImage( data.filtered_image)
+            
           }
         } catch (error) {
           alert(error.message);
         }
       }
+
+
+
+
+ async function downloadImage(imageUrl) {
+  try {
+    // Fetch the image as a blob
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+
+    // Create an <a> element and trigger download
+    let link = document.getElementById('download');
+    link.style.display='inline'
+    link.href = url;
+    link.download = `processed_img${Date.now()}`; // Name of the file to be downloaded
+    document.body.appendChild(link);
+    link.click(); // Simulate click to download
+    document.body.removeChild(link); // Clean up
+
+    // Release the object URL to free up memory
+    
+  } catch (error) {
+    console.log("Error downloading the image:",error.message);
+    alert("Failed to download the image.");
+  }
+}
+
+// Usage Example: Call the downloadImage function with the image URL
+
     </script>
   </body>
 </html>

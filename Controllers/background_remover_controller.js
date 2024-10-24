@@ -12,8 +12,7 @@ const pixelbin = new PixelbinClient(config);
 module.exports = {
   remove_bg: async (req, res) => {
     try {
-     
-      const filename = `${Date.now()}-${req.file.originalname}`
+      const filename = `${Date.now()}-${req.file.originalname}`;
 
       const result = await pixelbin.uploader.upload({
         file: req.file.buffer,
@@ -27,7 +26,6 @@ module.exports = {
         access: "public-read",
       });
 
-
       const obj = {
         cloudName: "cold-truth-fd28d6",
         zone: "NRYeUN",
@@ -39,15 +37,11 @@ module.exports = {
 
       const removed_url = Pixelbin.url.objToUrl(obj);
 
-      console.log(removed_url);
-     if(removed_url){
-      return res.json({success:true,image_url:removed_url});
- 
-     }
+      if (removed_url) {
+        return res.json({ success: true, image_url: removed_url });
+      }
     } catch (error) {
-   
       console.log("Error:", error.message);
-    
     }
   },
 };
