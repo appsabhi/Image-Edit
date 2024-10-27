@@ -83,6 +83,8 @@ module.exports = {
         // console.log("xml",xml_data)
 
         let location = xml_data.getElementsByTagName("Location")[0].textContent;
+
+         url= location
     // console.log(location)
         if (xml_data && location) {
           // Third Response //
@@ -92,13 +94,14 @@ module.exports = {
           final_formdata.append("method", "befunky.runTemplateEffect");
           final_formdata.append("template_id", "ART_0001");
           final_formdata.append("url", location);
-          final_formdata.append("CSRFtoken","55731a1c54b180f5f7d0beaa75b97480.5daab195ea348cd5ef08e4ae0c74cb08ca972fc523eea016c439b68f7077a40c");
-          // final_formdata.append("adjustment", "10");
-          // final_formdata.append("sharpen", "0");
-          // final_formdata.append("vm", "5");
-          final_formdata.append("adjustment",JSON.stringify({ vm: "0", sharpen: "0" }));
+          final_formdata.append("CSRFtoken","7c0b6b20e8e4702427d96c1b4c020608.07c49a7ad3b34f0e1f50c527600f22068bd7a46416fab61aab46ec305c47015a");
+          final_formdata.append("adjustment","");
+          final_formdata.append("vm","");
+          final_formdata.append("sharpen","0");
+        
+          
 
-          let csrf_token ="CSRFtoken=55731a1c54b180f5f7d0beaa75b97480.5daab195ea348cd5ef08e4ae0c74cb08ca972fc523eea016c439b68f7077a40c";
+          let csrf_token ="CSRFtoken=7c0b6b20e8e4702427d96c1b4c020608.07c49a7ad3b34f0e1f50c527600f22068bd7a46416fab61aab46ec305c47015a";
            
 
             console.log('last-form',final_formdata)
@@ -110,7 +113,7 @@ module.exports = {
             {
               headers: {
                 "x-csrf-token":
-                  "55731a1c54b180f5f7d0beaa75b97480.5daab195ea348cd5ef08e4ae0c74cb08ca972fc523eea016c439b68f7077a40c",
+                  "7c0b6b20e8e4702427d96c1b4c020608.07c49a7ad3b34f0e1f50c527600f22068bd7a46416fab61aab46ec305c47015a",
                 cookie: csrf_token,
               },
 
@@ -129,11 +132,16 @@ module.exports = {
               success: true,
               filtered_image: data.data.url,
             });
+          
           }
+         
         }
       }
     } catch (error) {
-      console.log(error.message);
+      console.log("buffer error",error.message);
     }
   },
-};
+
+
+}
+  

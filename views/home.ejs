@@ -70,8 +70,20 @@
         border: 1px solid #ccc; /* Optional: Add a border for better visibility */
         border-radius: 5px; /* Optional: Add rounded corners */
         margin-top: 10px;
+        /* filter: brightness(0.5) contrast(1.1) saturate(0.5);
+        transition: filter 0.3s; */
       }
 
+      #filtered_image {
+        display: none;
+        width: 100%;
+        height: 500px;
+        border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+        border-radius: 5px; /* Optional: Add rounded corners */
+        margin-top: 10px;
+        /* filter: brightness(0.5) contrast(1.1) saturate(0.5);
+        transition: filter 0.3s; */
+      }
       .loader {
         display: none;
         width: 50px;
@@ -94,6 +106,8 @@
           transform: rotate(1turn);
         }
       }
+
+      
     </style>
   </head>
   <body>
@@ -101,14 +115,16 @@
     <span class="loader" id="loder"></span>
 
     <div class="container">
-    <div id="slider" class="noUi-target noUi-ltr noUi-horizontal noUi-txt-dir-ltr bfn-slider"></div>
+    <!-- <div id="slider" class="noUi-target noUi-ltr noUi-horizontal noUi-txt-dir-ltr bfn-slider"></div> -->
+    
 
       <h1>Image Enhancement Tool</h1>
       <form id="uploadForm" enctype="multipart/form-data">
         <a id="download"  href=""  style="position: absolute;z-index:20;left:36px;bottom: 150px;display:none;"><span class="fas fa-upload"></span></a>
 
         <img id="preview_img" src="" alt=""   style="position: relative;z-index: 10;"/>
-
+        <img id="filtered_image" src="" alt=""   style="position: relative;z-index: 10;"  crossorigin="anonymous"/>
+ 
 
         <input
           type="file"
@@ -139,29 +155,7 @@
 
     <script>
 
-
-        const slider = document.getElementById('slider');
-
-        // Create the slider
-        noUiSlider.create(slider, {
-            start: [0],
-            range: {
-                'min': [0],
-                'max': [10] // Adjust as necessary
-            },
-            step: 1
-        });
-
-        // Update the adjustment value
-        slider.noUiSlider.on('update', function (values, handle) {
-            let  adjustmentValue = values[handle];
-            console.log('Current Adjustment Value:', adjustmentValue);
-         let response  =   fetch('https://upload.befunky.com/artsy/',{
-                          method:'PUT',
-                          
-         })
-   
-        });
+        
     
 
 
@@ -200,7 +194,9 @@
         loader.style.display = "block";
 
         let form = document.getElementById("uploadForm");
-        let image_tag = document.getElementById("preview_img");
+        let image_tag = document.getElementById("filtered_image");
+        let preview_imagetag = document.getElementById("preview_img");
+
         let files = document.getElementById("imageInput").files;
           let link = document.getElementById('download')
 
@@ -226,12 +222,12 @@
         if (data.success === true) {
           let loader = document.getElementById("loder");
           loader.style.display = "none";
+          preview_imagetag.style.display="none"
+
           image_tag.src = data.updated_img;
-          // link.style.display='inline'
-          // link.href=data.updated_img
-          // console.log(link.href)
-          // link.download = "processed_img.jpg"
-        downloadImage( data.updated_img);
+          image_tag.style.display='block'
+          
+          downloadimage( data.updated_img);
 
           
         
@@ -246,7 +242,8 @@
         event.preventDefault();
 
         let loader = document.getElementById("loder");
-        let imagetag = document.getElementById("preview_img");
+        let preview_imagetag = document.getElementById("preview_img");
+        let imagetag = document.getElementById("filtered_image");
         let form = document.getElementById("uploadForm");
         let files = document.getElementById("imageInput").files;
 
@@ -288,8 +285,13 @@
             }
             
             let data = await response.json();
+            preview_imagetag.style.display="none"
+
             imagetag.src = data.image_url; // Display processed image
-            downloadImage( data.image_url)
+          image_tag.style.display='block'
+
+            downloadimage( data.image_url)
+
 
           } catch (error) {
             alert(error.message); // Display user-friendly error message
@@ -306,15 +308,22 @@
         };
       }
 
+
+
+
+
+
+
       async function image_filtering(event) {
         event.preventDefault();
         console.log("start");
 
         let loader = document.getElementById("loder");
-        let imagetag = document.getElementById("preview_img");
+        let imagetag = document.getElementById("filtered_image");
+        let preview_imagetag = document.getElementById("preview_img");
         let form = document.getElementById("uploadForm");
         let files = document.getElementById("imageInput").files;
-
+         console.log(imagetag)
         if (files.length === 0) {
           alert("Please select an image.");
           return;
@@ -333,9 +342,20 @@
           });
           let data = await response.json();
           if (data.success === true) {
+            preview_imagetag.style.display="none"
+            
+            imagetag.style.display='block'
+            imagetag.style.filter='brightness(0.6) contrast(1.2)  saturate(1.0)   '
+           
             imagetag.src = data.filtered_image;
+            console.log(data.filtered_image)       
+          imagetag.onload = function() {
+                    downloadImage();
+                };
+
+           
             loader.style.display = "none";
-            downloadImage( data.filtered_image)
+           
             
           }
         } catch (error) {
@@ -346,7 +366,7 @@
 
 
 
- async function downloadImage(imageUrl) {
+ async function downloadimage(imageUrl) {
   try {
     // Fetch the image as a blob
     const response = await fetch(imageUrl);
@@ -356,7 +376,9 @@
     // Create an <a> element and trigger download
     let link = document.getElementById('download');
     link.style.display='inline'
+
     link.href = url;
+    
     link.download = `processed_img${Date.now()}`; // Name of the file to be downloaded
     document.body.appendChild(link);
     link.click(); // Simulate click to download
@@ -370,8 +392,46 @@
   }
 }
 
-// Usage Example: Call the downloadImage function with the image URL
+function downloadImage() {
+  const img = document.getElementById('filtered_image');
+
+// Check if the image has loaded
+img.onload = function() {
+    // Create a canvas element
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas size to match the image
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    // Apply CSS filters
+    ctx.filter = 'brightness(0.6) contrast(1.2) saturate(1.0)'; // Same filters as CSS
+
+    // Draw the image onto the canvas
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // Convert the canvas to a Blob and trigger the download
+    canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+
+        // Create a link to download the image
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'filtered_image.png'; // Specify the file name
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a); // Remove the link after downloading
+        URL.revokeObjectURL(url); // Clean up
+    }, 'image/png');
+};
+
+// Set the image source
+img.src = img.src;
+}
+
 
     </script>
   </body>
 </html>
+<!-- <div class="noUi-connect" style="transform: translate(0%, 0px) scale(0.82, 1);"></div><div class="noUi-origin" style="transform: translate(-180%, 0px); z-index: 4;">" -->
