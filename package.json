@@ -20,9 +20,11 @@
     "ejs": "^3.1.10",
     "express": "^4.21.1",
     "FileReader": "^0.10.2",
+    "jimp": "^0.16.1",
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.7",
     "nouislider": "^15.8.1",
+    "socket.io": "^4.8.1",
     "xmldom": "^0.6.0"
   }
 }
