@@ -347,20 +347,15 @@
             preview_imagetag.style.display="none"
             
             imagetag.style.display='block'
-            imagetag.style.filter=' opacity(1) '
-                //  'brightness(0.7) contrast(1.2) saturate(0.9) '
-            
            
             imagetag.src = data.filtered_image;
-            console.log(data.filtered_image)       
-          imagetag.onload = function() {
-                    downloadImage();
-                };
-
-           
             loader.style.display = "none";
-           
+            downloadimage(data.filtered_image)
             
+          }
+          else if(data.error)
+          {
+            alert(data.error)
           }
         } catch (error) {
           alert(error.message);
@@ -396,44 +391,44 @@
   }
 }
 
-function downloadImage() {
-  const img = document.getElementById('filtered_image');
+// function downloadImage() {
+//   const img = document.getElementById('filtered_image');
 
-// Check if the image has loaded
-img.onload = function() {
-    // Create a canvas element
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+// // Check if the image has loaded
+// img.onload = function() {
+//     // Create a canvas element
+//     const canvas = document.createElement('canvas');
+//     const ctx = canvas.getContext('2d');
 
-    // Set canvas size to match the image
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+//     // Set canvas size to match the image
+//     canvas.width = img.naturalWidth;
+//     canvas.height = img.naturalHeight;
 
-    // // Apply CSS filters
-    // ctx.filter = 'blur(-1px)'
-    // 'brightness(0.6) contrast(0.9) saturate(1) '; // Same filters as CSS
+//     // // Apply CSS filters
+//     // ctx.filter = 'blur(-1px)'
+//     // 'brightness(0.6) contrast(0.9) saturate(1) '; // Same filters as CSS
 
-    // Draw the image onto the canvas
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+//     // Draw the image onto the canvas
+//     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    // Convert the canvas to a Blob and trigger the download
-    canvas.toBlob(function(blob) {
-        const url = URL.createObjectURL(blob);
+//     // Convert the canvas to a Blob and trigger the download
+//     canvas.toBlob(function(blob) {
+//         const url = URL.createObjectURL(blob);
 
-        // Create a link to download the image
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'filtered_image.png'; // Specify the file name
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a); // Remove the link after downloading
-        URL.revokeObjectURL(url); // Clean up
-    }, 'image/png');
-};
+//         // Create a link to download the image
+//         const a = document.createElement('a');
+//         a.href = url;
+//         a.download = 'filtered_image.png'; // Specify the file name
+//         document.body.appendChild(a);
+//         a.click();
+//         document.body.removeChild(a); // Remove the link after downloading
+//         URL.revokeObjectURL(url); // Clean up
+//     }, 'image/png');
+// };
 
-// Set the image source
-img.src = img.src;
-}
+// // Set the image source
+// img.src = img.src;
+// }
 
 
     </script>

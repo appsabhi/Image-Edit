@@ -1,25 +1,10 @@
 require("dotenv").config();
-const { DOMParser } = require("xmldom");
-const crypto = require("crypto");
-const Jimp =require("jimp")
-const { response } = require("express");
-const axios =require("axios")
 
-function generatecsrftoken() {
-  const randomString = crypto.randomBytes(16).toString("hex"); // 32-character hex string
 
-  // Create a timestamp
-  const timestamp = Date.now().toString(); // Current timestamp as a string
 
-  // Create a hash using SHA-256
-  const hash = crypto
-    .createHash("sha256")
-    .update(randomString + timestamp)
-    .digest("hex"); // Hash of the random string and timestamp
 
-  // Return the token in the expected format
-  return `${randomString}.${hash}`;
-}
+
+
 
 module.exports = {
   filter_image: async (req, res) => {
@@ -35,7 +20,7 @@ module.exports = {
             headers:{
               'Content-Type':"application/json"
             },
-            body:JSON.stringify(req_body),
+            body:JSON.stringify(req_body)
            
           })
           let {base64} = await final_response.json()
@@ -54,6 +39,7 @@ module.exports = {
       // }
     } catch (error) {
       console.log("buffer error",error.message);
+      return res.json({error:error.message})
     }
   },
 
