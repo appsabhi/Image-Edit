@@ -27,8 +27,8 @@ module.exports = {
       });
 
       const obj = {
-        cloudName: "late-butterfly-f8a9e6",
-        zone: "wD_E8t",
+        cloudName: "winter-hall-f4d3f4",
+        zone: "5CbfrW",
         version: "v2",
         transformations: [{ name: "bg", plugin: "erase" }],
         filePath: `/${result.path}/${result.name}`,

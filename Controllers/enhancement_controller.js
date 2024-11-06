@@ -45,7 +45,7 @@ module.exports = {
         }
       );
       let data = await first_response.json();
-
+//  console.log("first",data)
       //   first Request //
 
       if (data.data && data.data.inputs) {
@@ -86,7 +86,8 @@ module.exports = {
 
         const location =
           xmldata.getElementsByTagName("Location")[0].textContent;
-
+     
+          // console.log(`second---${location}`)
     
 
         // second request //
@@ -100,11 +101,11 @@ module.exports = {
           final_formdata.append("image", location);
           final_formdata.append(
             "CSRFtoken",
-            "64381e528e7c7a9b9f69f4499d274904.9787bfa35a80724553b7be2700aaf34829b601f4b6a284edc749973b002aabbe"
+            "8851a006a305b1de1406ddda87ef5e2e.09d0b77598a54d5c626b5ddcc2626314ba2c530c9e485c6ac22141515bf73a4b"
           );
           final_formdata.append("model", "enhancer");
           let csrf_token =
-            "CSRFtoken=64381e528e7c7a9b9f69f4499d274904.9787bfa35a80724553b7be2700aaf34829b601f4b6a284edc749973b002aabbe";
+            "CSRFtoken=8851a006a305b1de1406ddda87ef5e2e.09d0b77598a54d5c626b5ddcc2626314ba2c530c9e485c6ac22141515bf73a4b";
 
           let urlencoded = new URLSearchParams(final_formdata).toString();
 
@@ -114,7 +115,7 @@ module.exports = {
               headers: {
                 "content-type": "application/x-www-form-urlencoded",
                 "x-csrf-token":
-                  "64381e528e7c7a9b9f69f4499d274904.9787bfa35a80724553b7be2700aaf34829b601f4b6a284edc749973b002aabbe",
+                  "8851a006a305b1de1406ddda87ef5e2e.09d0b77598a54d5c626b5ddcc2626314ba2c530c9e485c6ac22141515bf73a4b",
                 cookie: csrf_token,
               },
 
@@ -123,17 +124,20 @@ module.exports = {
             }
           );
 
-          let { data } = await final_response.json();
+         
+          let data = await final_response.json();
+  console.log(data.data.image)
+                // Third Response //
 
-      
-
-          // Third Response //
-
-          if (data.success === true) {
+          if (data.data.success) {
+            console.log("success")
             return res.json({
               success: true,
-              updated_img: data.image,
+              updated_img: data.data.image,
             });
+          }
+          else{
+            return res.json({error:data.success})
           }
         }
       }

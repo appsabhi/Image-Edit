@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Image Enhancer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.css"
+    />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
@@ -48,7 +51,6 @@
         border-radius: 5px;
         width: 100%;
         max-width: 300px;
-     
       }
       button {
         padding: 10px 20px;
@@ -65,11 +67,13 @@
 
       #preview_img {
         display: none;
-        width: 100%;
+        width: 99%;
         height: 500px;
         border: 1px solid #ccc; /* Optional: Add a border for better visibility */
         border-radius: 5px; /* Optional: Add rounded corners */
         margin-top: 10px;
+        position: relative;
+        z-index: 10;
         /* filter: brightness(0.5) contrast(1.1) saturate(0.5);
         transition: filter 0.3s; */
       }
@@ -81,6 +85,8 @@
         border: 1px solid #ccc; /* Optional: Add a border for better visibility */
         border-radius: 5px; /* Optional: Add rounded corners */
         margin-top: 10px;
+        position: absolute;
+        z-index: 20;
         /* filter: brightness(0.5) contrast(1.1) saturate(0.5);
         transition: filter 0.3s; */
       }
@@ -106,26 +112,53 @@
           transform: rotate(1turn);
         }
       }
-
-      
     </style>
   </head>
   <body>
-   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.js"></script>
+ 
     <span class="loader" id="loder"></span>
 
     <div class="container">
-    <!-- <div id="slider" class="noUi-target noUi-ltr noUi-horizontal noUi-txt-dir-ltr bfn-slider"></div> -->
-    
-
-      <h1>Image Enhancement Tool</h1>
+      
       <form id="uploadForm" enctype="multipart/form-data">
-        <a id="download"  href=""  style="position: absolute;z-index:20;left:36px;bottom: 150px;display:none;"><span class="fas fa-upload"></span></a>
+        <input
+          style="display: none"
+          type="range"
+          id="edgeThreshold"
+          min="0"
+          max="1"
+          step="0.01"
+          value="0.5"
+        />
 
-        <img id="preview_img" src="" alt=""   style="position: relative;z-index: 10;"/>
-        <img id="filtered_image" src="" alt=""   style="position: relative;z-index: 10;"  crossorigin="anonymous"/>
- 
+        <a
+          id="download"
+          href=""
+          style="
+            position: absolute;
+            z-index: 20;
+            left: 36px;
+            bottom: 150px;
+            display: none;
+          "
+          ><span class="fas fa-upload"></span
+        ></a>
+
+        <img
+          id="preview_img"
+          src=""
+          alt=""
+          style="position: relative; z-index: 10"
+        />
+
+        <img
+          id="filtered_image"
+          src=""
+          alt=""
+          style="position: relative; z-index: 10"
+          crossorigin="anonymous"
+        />
 
         <input
           type="file"
@@ -155,13 +188,6 @@
     </div>
 
     <script>
-
-        
-    
-
-
-
-
       let currentImage = null; // Store the latest version of the image
 
       function enhance() {
@@ -199,7 +225,7 @@
         let preview_imagetag = document.getElementById("preview_img");
 
         let files = document.getElementById("imageInput").files;
-          let link = document.getElementById('download')
+        let link = document.getElementById("download");
 
         let file = files[0];
 
@@ -215,27 +241,23 @@
           method: "POST",
           body: formdata,
         });
-
         loader.style.display = "block";
 
         data = await response.json();
 
+        console.log(data);
+
         if (data.success === true) {
           let loader = document.getElementById("loder");
           loader.style.display = "none";
-          preview_imagetag.style.display="none"
+          preview_imagetag.style.display = "none";
 
           image_tag.src = data.updated_img;
-          image_tag.style.display='block'
-          
-          downloadimage( data.updated_img);
+          image_tag.style.display = "block";
 
-          
-        
-           
-      
-      
-
+          downloadimage(data.updated_img);
+        } else if (data.error === false) {
+          alert(data.error);
         }
       }
 
@@ -284,16 +306,16 @@
                 errorData.message || "Failed to process image. Try again."
               );
             }
-            
+
             let data = await response.json();
-            preview_imagetag.style.display="none"
+
+            preview_imagetag.style.display = "none";
 
             imagetag.src = data.image_url; // Display processed image
-          image_tag.style.display='block'
 
-            downloadimage( data.image_url)
+            imagetag.style.display = "block";
 
-
+            downloadimage(data.image_url);
           } catch (error) {
             alert(error.message); // Display user-friendly error message
           } finally {
@@ -309,22 +331,15 @@
         };
       }
 
-
-
-
-
-
-
       async function image_filtering(event) {
         event.preventDefault();
-        console.log("start");
 
         let loader = document.getElementById("loder");
         let imagetag = document.getElementById("filtered_image");
         let preview_imagetag = document.getElementById("preview_img");
         let form = document.getElementById("uploadForm");
         let files = document.getElementById("imageInput").files;
-         console.log(imagetag)
+
         if (files.length === 0) {
           alert("Please select an image.");
           return;
@@ -336,102 +351,118 @@
 
           loader.style.display = "block";
 
-          console.log(form_data);
           let response = await fetch("/image_filter", {
             method: "POST",
             body: form_data,
           });
+
           let data = await response.json();
-          console.log(data)
+
           if (data.success === true) {
-            preview_imagetag.style.display="none"
-            
-            imagetag.style.display='block'
-           
+            preview_imagetag.style.display = "none";
+
             imagetag.src = data.filtered_image;
+
+            imagetag.style.display = "block";
+
+            imagetag.style.filter = "brightness(0.9) ";
+
             loader.style.display = "none";
-            downloadimage(data.filtered_image)
-            
-          }
-          else if(data.error)
-          {
-            alert(data.error)
+
+            // let slider = document.getElementById("edgeThreshold");
+            // slider.style.display = "inline-block";
+
+            imagetag.onload = function () {
+              downloadImage(imagetag);
+            };
+          } else if (data.error) {
+            alert(data.error);
           }
         } catch (error) {
           alert(error.message);
         }
       }
+      function downloadImage(imagetag) {
+    // Get the file from the input
+    let files = document.getElementById("imageInput").files;
+    let file = files[0];
 
+    if (!file) {
+        alert("Please select an image.");
+        return;
+    }
 
+    const originalImage = new Image();
+    const reader = new FileReader();
 
+    // FileReader to load the selected image
+    reader.onload = function (event) {
+        originalImage.src = event.target.result; // Set the source of the original image
 
- async function downloadimage(imageUrl) {
-  try {
-    // Fetch the image as a blob
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
+        // Wait until the original image is fully loaded
+        originalImage.onload = function () {
+            // Create a canvas element
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
 
-    // Create an <a> element and trigger download
-    let link = document.getElementById('download');
-    link.style.display='inline'
+            // Set canvas size to match the dimensions of the image
+            canvas.width = imagetag.naturalWidth;
+            canvas.height = imagetag.naturalHeight;
 
-    link.href = url;
-    
-    link.download = `processed_img${Date.now()}`; // Name of the file to be downloaded
-    document.body.appendChild(link);
-    link.click(); // Simulate click to download
-    document.body.removeChild(link); // Clean up
+            // Apply filters to the canvas context
+            ctx.filter = "brightness(0.9) saturate(1.3) contrast(1)  ";  // Apply a brightness filter
 
-    // Release the object URL to free up memory
-    
-  } catch (error) {
-    console.log("Error downloading the image:",error.message);
-    alert("Failed to download the image.");
-  }
+            // Draw the image from the imagetag (filtered image) onto the canvas
+            ctx.globalAlpha = 0.8;  // Set transparency for blending
+            ctx.drawImage(imagetag, 0, 0, canvas.width, canvas.height);
+
+            // Now draw the original image on top of the filtered image
+            ctx.globalAlpha = 0.5;  // Maintain the transparency for blending
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas content to a Blob and download
+            canvas.toBlob(function (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+
+                a.href = url;
+                a.download = `filtered_image${Date.now()}.jpg`;  // Set the download file name
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);  // Clean up the object URL
+            });
+        };
+    };
+
+    // Start reading the file as a Data URL
+    reader.readAsDataURL(file);
 }
 
-// function downloadImage() {
-//   const img = document.getElementById('filtered_image');
+      async function downloadimage(imageUrl) {
+        try {
+          // Fetch the image as a blob
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
 
-// // Check if the image has loaded
-// img.onload = function() {
-//     // Create a canvas element
-//     const canvas = document.createElement('canvas');
-//     const ctx = canvas.getContext('2d');
+          // Create an <a> element and trigger download
+          let link = document.getElementById("download");
+          link.style.display = "inline";
 
-//     // Set canvas size to match the image
-//     canvas.width = img.naturalWidth;
-//     canvas.height = img.naturalHeight;
+          link.href = url;
 
-//     // // Apply CSS filters
-//     // ctx.filter = 'blur(-1px)'
-//     // 'brightness(0.6) contrast(0.9) saturate(1) '; // Same filters as CSS
+          link.download = `processed_img${Date.now()}`; // Name of the file to be downloaded
+          document.body.appendChild(link);
+          link.click(); // Simulate click to download
+          document.body.removeChild(link); // Clean up
 
-//     // Draw the image onto the canvas
-//     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-//     // Convert the canvas to a Blob and trigger the download
-//     canvas.toBlob(function(blob) {
-//         const url = URL.createObjectURL(blob);
-
-//         // Create a link to download the image
-//         const a = document.createElement('a');
-//         a.href = url;
-//         a.download = 'filtered_image.png'; // Specify the file name
-//         document.body.appendChild(a);
-//         a.click();
-//         document.body.removeChild(a); // Remove the link after downloading
-//         URL.revokeObjectURL(url); // Clean up
-//     }, 'image/png');
-// };
-
-// // Set the image source
-// img.src = img.src;
-// }
-
-
+          // Release the object URL to free up memory
+        } catch (error) {
+          console.log("Error downloading the image:", error.message);
+          alert("Failed to download the image.");
+        }
+      }
     </script>
   </body>
 </html>
-<!-- <div class="noUi-connect" style="transform: translate(0%, 0px) scale(0.5, 1);"></div><div class="noUi-origin" style="transform: translate(-500%, 0px); z-index: 4;"></div> -->
