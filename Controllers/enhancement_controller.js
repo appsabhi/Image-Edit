@@ -45,7 +45,7 @@ module.exports = {
         }
       );
       let data = await first_response.json();
-//  console.log("first",data)
+
       //   first Request //
 
       if (data.data && data.data.inputs) {
@@ -87,7 +87,7 @@ module.exports = {
         const location =
           xmldata.getElementsByTagName("Location")[0].textContent;
      
-          // console.log(`second---${location}`)
+    
     
 
         // second request //
@@ -126,11 +126,11 @@ module.exports = {
 
          
           let data = await final_response.json();
-  console.log(data.data.image)
+  
                 // Third Response //
 
           if (data.data.success) {
-            console.log("success")
+    
             return res.json({
               success: true,
               updated_img: data.data.image,
@@ -142,8 +142,15 @@ module.exports = {
         }
       }
     } catch (error) {
-      console.log(error.message);
+      
+      return res.status(500).json({ error: error.message });
+
    
     }
   },
+
+  Demo_Page:(req,res)=>{
+    res.render("demo")
+  }
+
 };

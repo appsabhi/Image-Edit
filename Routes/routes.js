@@ -21,7 +21,6 @@ Router.post(
   upload.single("image"),
   filter_controller.filter_image
 );
-
-
+Router.get("/demo_page",enhance_controller.Demo_Page)
 
 module.exports = Router;

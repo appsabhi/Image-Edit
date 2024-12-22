@@ -27,16 +27,16 @@ module.exports = {
       });
 
       const obj = {
-        cloudName: "winter-hall-f4d3f4",
-        zone: "5CbfrW",
+        cloudName: "long-shadow-ed89a9",
+        zone: "OxsAhh",
         version: "v2",
         transformations: [{ name: "bg", plugin: "erase" }],
         filePath: `/${result.path}/${result.name}`,
         baseUrl: "https://cdn.pixelbin.io",
       };
- console.log(obj)
+
       const removed_url = Pixelbin.url.objToUrl(obj);
-  console.log(removed_url)
+
       if (removed_url) {
         return res.json({ success: true, image_url: removed_url });
       }
@@ -45,10 +45,12 @@ module.exports = {
           method:"GET"
          })
     let msg = await res.json()
-    console.log
+   console.log(msg)
       }
     } catch (error) {
-      console.log("Error:", error.message);
+      
+      return res.status(500).json({ error: error.message });
+
     }
   },
 };

@@ -52,7 +52,7 @@
         width: 100%;
         max-width: 300px;
       }
-      button {
+      button{
         padding: 10px 20px;
         background-color: #007bff;
         color: white;
@@ -122,15 +122,7 @@
     <div class="container">
       
       <form id="uploadForm" enctype="multipart/form-data">
-        <input
-          style="display: none"
-          type="range"
-          id="edgeThreshold"
-          min="0"
-          max="1"
-          step="0.01"
-          value="0.5"
-        />
+       
 
         <a
           id="download"
@@ -141,6 +133,7 @@
             left: 36px;
             bottom: 150px;
             display: none;
+           
           "
           ><span class="fas fa-upload"></span
         ></a>
@@ -156,30 +149,33 @@
           id="filtered_image"
           src=""
           alt=""
-          style="position: relative; z-index: 10"
+          style="position: relative; z-index: 20"
           crossorigin="anonymous"
         />
 
         <input
           type="file"
           id="imageInput"
-          onchange="enhance()"
+          onchange="preview_image()"
           name="image"
           accept="image/*"
           required
         />
 
         <br />
-        <button type="submit" onclick="enhance_image(event)">
+     
+        
+        <button onclick="enhance_image(event)">
           <i class="fas fa-upload"></i> Enhance Image
         </button>
 
-        <button type="submit" onclick="remove_bg(event)">
+        <button  value="" onclick="remove_bg(event)">
           <i class="fas fa-upload"></i>Remove Backround
         </button>
-        <button type="submit" onclick="image_filtering(event)">
+        <button   value="" onclick="image_filtering(event)">
           <i class="fas fa-upload"></i>Filter
         </button>
+       
 
         <input type="hidden" name="bucket" value=" ai-direct-upload" />
         <input type="hidden" name="content_type" value="image/jpeg" />
@@ -189,8 +185,8 @@
 
     <script>
       let currentImage = null; // Store the latest version of the image
-
-      function enhance() {
+//  preview image
+      function preview_image() {
         let files = document.getElementById("imageInput").files;
         let imageTag = document.getElementById("preview_img");
 
@@ -213,6 +209,11 @@
 
         reader.readAsDataURL(files[0]);
       }
+
+//preview image
+
+
+// enhance image //
 
       async function enhance_image(event) {
         event.preventDefault();
@@ -245,7 +246,7 @@
 
         data = await response.json();
 
-        console.log(data);
+       
 
         if (data.success === true) {
           let loader = document.getElementById("loder");
@@ -260,6 +261,11 @@
           alert(data.error);
         }
       }
+
+// enhance image //
+
+
+// background removel//
 
       async function remove_bg(event) {
         event.preventDefault();
@@ -299,25 +305,36 @@
               body: form_data,
             });
 
+            console.log(response)
             if (!response.ok) {
               // Handle errors gracefully
               let errorData = await response.json();
-              throw new Error(
-                errorData.message || "Failed to process image. Try again."
-              );
+               alert("error occured during removing background",error.message)
+            }
+      
+            let data = await response.json();
+            let res = await fetch(data.image_url,{method:"GET"})
+            if(!res.ok){
+            let   error = await res.json()
+            console.log(error)
+              alert(error.message)
+              return
             }
 
-            let data = await response.json();
+            if(data.success){
+              
+              preview_imagetag.style.display = "none";
 
-            preview_imagetag.style.display = "none";
+              imagetag.src = data.image_url; // Display processed image
 
-            imagetag.src = data.image_url; // Display processed image
+              imagetag.style.display = "block";
 
-            imagetag.style.display = "block";
+              downloadimage(data.image_url);
+            }
 
-            downloadimage(data.image_url);
+           
           } catch (error) {
-            alert(error.message); // Display user-friendly error message
+            alert("error occured during removing background",error.message); // Display user-friendly error message
           } finally {
             // Hide loader in both success and error cases
             loader.style.display = "none";
@@ -331,6 +348,12 @@
         };
       }
 
+
+// background removel//
+
+
+// filter image //
+
       async function image_filtering(event) {
         event.preventDefault();
 
@@ -339,14 +362,15 @@
         let preview_imagetag = document.getElementById("preview_img");
         let form = document.getElementById("uploadForm");
         let files = document.getElementById("imageInput").files;
+        let form_data = new FormData();
+        let file = files[0];
+        
 
         if (files.length === 0) {
           alert("Please select an image.");
           return;
         }
-        let file = files[0];
         try {
-          let form_data = new FormData();
           form_data.append("image", file);
 
           loader.style.display = "block";
@@ -364,35 +388,7 @@
             imagetag.src = data.filtered_image;
 
             imagetag.style.display = "block";
-
-            imagetag.style.filter = "brightness(0.9) ";
-
-            loader.style.display = "none";
-
-            // let slider = document.getElementById("edgeThreshold");
-            // slider.style.display = "inline-block";
-
-            imagetag.onload = function () {
-              downloadImage(imagetag);
-            };
-          } else if (data.error) {
-            alert(data.error);
-          }
-        } catch (error) {
-          alert(error.message);
-        }
-      }
-      function downloadImage(imagetag) {
-    // Get the file from the input
-    let files = document.getElementById("imageInput").files;
-    let file = files[0];
-
-    if (!file) {
-        alert("Please select an image.");
-        return;
-    }
-
-    const originalImage = new Image();
+            const originalImage = new Image();
     const reader = new FileReader();
 
     // FileReader to load the selected image
@@ -423,21 +419,59 @@
             // Convert the canvas content to a Blob and download
             canvas.toBlob(function (blob) {
                 const url = URL.createObjectURL(blob);
+                console.log(url)
+                imagetag.src =url
                 const a = document.createElement("a");
-
+                a.style.display=""
                 a.href = url;
                 a.download = `filtered_image${Date.now()}.jpg`;  // Set the download file name
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                URL.revokeObjectURL(url);  // Clean up the object URL
-            });
+                imageTag.onload = function() {
+        URL.revokeObjectURL(url);
+    };  // Clean up the object URL
+            },"image/png");
         };
     };
 
     // Start reading the file as a Data URL
     reader.readAsDataURL(file);
-}
+
+            loader.style.display = "none";
+            // imagetag.onload = function () {
+            //   downloadImage(imagetag);
+            // };
+          } else if (data.error) {
+            alert(data.error);
+          }
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+
+// filter image //
+
+
+// download  image
+
+    function downloadImage(imagetag) {
+    // Get the file from the input
+    let files = document.getElementById("imageInput").files;
+    let file = files[0];
+
+    if (!file) {
+        alert("Please select an image.");
+        return;
+    }
+
+   }
+
+
+// downnload image//
+
+
+// download filtered image
 
       async function downloadimage(imageUrl) {
         try {
@@ -459,10 +493,14 @@
 
           // Release the object URL to free up memory
         } catch (error) {
-          console.log("Error downloading the image:", error.message);
-          alert("Failed to download the image.");
+         
+          alert("Failed to download the image.",error.message);
         }
       }
+
+
+// download filtered image
+
     </script>
   </body>
 </html>
